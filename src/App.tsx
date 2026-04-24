@@ -1,10 +1,22 @@
+import { useAppState } from './hooks/useAppState'
+import { SetupScreen } from './screens/SetupScreen'
+import { QuizScreen } from './screens/QuizScreen'
+import { ResultsScreen } from './screens/ResultsScreen'
+
 export default function App() {
+  const [state, dispatch] = useAppState()
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Times Table Tester</h1>
-        <p className="text-gray-500">Coming soon</p>
-      </div>
+    <div className="min-h-screen">
+      {state.screen === 'setup' && (
+        <SetupScreen onStart={config => dispatch({ type: 'START_QUIZ', config })} />
+      )}
+      {state.screen === 'quiz' && (
+        <QuizScreen config={state.config} onEnd={() => dispatch({ type: 'END_QUIZ' })} />
+      )}
+      {state.screen === 'results' && (
+        <ResultsScreen config={state.config} onPlayAgain={() => dispatch({ type: 'PLAY_AGAIN' })} />
+      )}
     </div>
   )
 }
