@@ -12,10 +12,17 @@ export default function App() {
         <SetupScreen onStart={config => dispatch({ type: 'START_QUIZ', config })} />
       )}
       {state.screen === 'quiz' && (
-        <QuizScreen config={state.config} onEnd={() => dispatch({ type: 'END_QUIZ' })} />
+        <QuizScreen
+          config={state.config}
+          onEnd={results => dispatch({ type: 'END_QUIZ', results })}
+        />
       )}
       {state.screen === 'results' && (
-        <ResultsScreen config={state.config} onPlayAgain={() => dispatch({ type: 'PLAY_AGAIN' })} />
+        <ResultsScreen
+          config={state.config}
+          results={state.results}
+          onPlayAgain={() => dispatch({ type: 'PLAY_AGAIN' })}
+        />
       )}
     </div>
   )

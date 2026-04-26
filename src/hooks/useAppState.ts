@@ -9,14 +9,14 @@ const DEFAULT_CONFIG: QuizConfig = {
 function reducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
     case 'START_QUIZ':
-      return { screen: 'quiz', config: action.config }
+      return { screen: 'quiz', config: action.config, results: [] }
     case 'END_QUIZ':
-      return { ...state, screen: 'results' }
+      return { ...state, screen: 'results', results: action.results }
     case 'PLAY_AGAIN':
-      return { screen: 'setup', config: state.config }
+      return { screen: 'setup', config: state.config, results: [] }
   }
 }
 
 export function useAppState() {
-  return useReducer(reducer, { screen: 'setup', config: DEFAULT_CONFIG })
+  return useReducer(reducer, { screen: 'setup', config: DEFAULT_CONFIG, results: [] })
 }

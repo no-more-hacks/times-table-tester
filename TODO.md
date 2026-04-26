@@ -5,11 +5,21 @@
 Show `A × B = ?` with 4 answer buttons in a 2×2 grid. Player taps the correct answer.
 
 - Distractors drawn from adjacent multiples of the same table and neighbouring tables — plausible wrong answers, not random noise
-- After answering: ~600ms green/red flash, then auto-advance to next question
+- After answering: ~600ms feedback delay, then auto-advance to next question
 - Score hidden during quiz, revealed in full on the results screen
 - Timer counts down; session ends when it hits zero
 
 **Status:** In progress — see staged build plan.
+
+### UI design decisions
+
+**Feedback:** When the player answers, the `?` in `A × B = ?` swaps to ✓ or ✗. The correct answer button highlights green regardless of whether the player was right or wrong. A wrong selection goes muted grey. No red anywhere.
+
+**Timer:** A thin indigo progress bar along the top of the card — no countdown digits, no colour changes. Time is visible but not anxiety-inducing.
+
+**Tone:** No urgency cues. This is a learning tool, not a stress test. Nothing flashes red, pulses, or screams at the player.
+
+**Target device:** iPad (portrait primary). Generous tap targets (`py-8` buttons), `max-w-lg` card width, no hover-only interactions.
 
 ---
 
