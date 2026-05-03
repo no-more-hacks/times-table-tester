@@ -8,7 +8,7 @@ export function QuizScreen({
   config: QuizConfig
   onEnd: (results: QuizResult[]) => void
 }) {
-  const { question, timeLeft, phase, selectedIndex, correct, answer } = useQuiz(config, onEnd)
+  const { question, timeLeft, phase, selectedIndex, correct, answer, total } = useQuiz(config, onEnd)
 
   const progress = timeLeft / (config.duration * 10)
 
@@ -39,7 +39,7 @@ export function QuizScreen({
         </div>
 
         {/* 2×2 answer grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div key={total} className="grid grid-cols-2 gap-4">
           {question.options.map((opt, i) => {
             const isSelected = selectedIndex === i
             const isAnswer = opt === question.answer

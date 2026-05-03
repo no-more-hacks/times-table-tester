@@ -3,6 +3,7 @@ export type Screen = 'setup' | 'quiz' | 'results'
 export interface QuizConfig {
   tables: number[]
   duration: number // seconds
+  feedbackDelay: number // ms before advancing to next question
 }
 
 export interface Question {
