@@ -35,7 +35,22 @@ Deployment is automatic: push to `main` → GitHub Actions builds and publishes 
 
 ## Staged build plan
 
-The project is built in 8 stages (see README.md). Phase 1 (multiple choice) is the current focus. Phases 2–5 (type answer, reverse mode, fill the blank, mixed mode) are future work described in TODO.md — do not implement them until Phase 1 is complete.
+The project is built in 8 stages (see README.md). Multiple choice mode is implemented. Additional modes (type answer, reverse, fill the blank, mixed) are independent and optional — described in TODO.md. Do not implement them unless explicitly asked.
+
+## Development approach
+
+When adding a new mode or significant feature, follow the pattern that worked for multiple choice:
+
+1. **UI skeleton first.** Build the screen with hardcoded/placeholder data so the layout, tap targets, and visual flow can be evaluated before any logic exists.
+2. **Game engine second.** Once the UI feels right, wire in question generation, state transitions, and scoring.
+
+This keeps feedback loops short and avoids re-doing UI work after logic is already entangled.
+
+## Constraints
+
+- **Single page app.** No routing library, no server, no build-time data fetching.
+- **No storage.** Nothing is persisted between sessions — no localStorage, no cookies, no IndexedDB.
+- **No external services.** No APIs, no analytics, no third-party scripts. Everything runs in the browser from the built assets.
 
 ## Presets
 

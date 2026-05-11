@@ -1,6 +1,6 @@
 # Times Table Tester — Roadmap
 
-## Phase 1 — Multiple Choice (current)
+## Mode: Multiple Choice (implemented)
 
 Show `A × B = ?` with 4 answer buttons in a 2×2 grid. Player taps the correct answer.
 
@@ -8,8 +8,6 @@ Show `A × B = ?` with 4 answer buttons in a 2×2 grid. Player taps the correct 
 - After answering: ~600ms feedback delay, then auto-advance to next question
 - Score hidden during quiz, revealed in full on the results screen
 - Timer counts down; session ends when it hits zero
-
-**Status:** In progress — see staged build plan.
 
 ### UI design decisions
 
@@ -23,7 +21,7 @@ Show `A × B = ?` with 4 answer buttons in a 2×2 grid. Player taps the correct 
 
 ---
 
-## Phase 2 — Type the Answer
+## Mode: Type the Answer
 
 Player types the numeric answer using a keyboard.
 
@@ -42,7 +40,7 @@ Player types the numeric answer using a keyboard.
 
 ---
 
-## Phase 3 — Reverse: Find the Question
+## Mode: Reverse (Find the Question)
 
 Given the answer, pick the correct expression from 4 options.
 
@@ -62,7 +60,7 @@ Given the answer, pick the correct expression from 4 options.
 
 ---
 
-## Phase 4 — Fill the Blank
+## Mode: Fill the Blank
 
 One factor is hidden. Pick the missing factor from 4 options.
 
@@ -82,7 +80,7 @@ One factor is hidden. Pick the missing factor from 4 options.
 
 ---
 
-## Phase 5 — Mixed Mode
+## Mode: Mixed
 
 Questions within a single session randomly alternate between the modes selected by the user on the setup screen.
 
@@ -90,7 +88,7 @@ Questions within a single session randomly alternate between the modes selected 
 
 ## Setup Screen — Mode Selection (future)
 
-Once Phase 2+ is implemented, add a "Question style" row to the setup screen:
+Once additional modes are implemented, add a "Question style" row to the setup screen:
 
 - Single mode: [Multiple choice] [Type answer] [Reverse] [Fill blank]
 - Mix: [Mix selected modes]

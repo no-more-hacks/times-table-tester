@@ -31,7 +31,7 @@ A standalone times table quiz app. Runs entirely in the browser — no server re
 
 ## Question modes
 
-Phase 1 implements **multiple choice**. Future phases add more modes — see [TODO.md](./TODO.md).
+**Multiple choice** is implemented. Additional modes (type answer, reverse, fill the blank, mixed) are independent optional additions — see [TODO.md](./TODO.md).
 
 ---
 
