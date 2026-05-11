@@ -5,6 +5,7 @@ interface Preset {
   name: string
   tables: number[]
   duration: number
+  feedbackDelay: number
 }
 
 function range(from: number, to: number): number[] {
@@ -12,18 +13,19 @@ function range(from: number, to: number): number[] {
 }
 
 const PRESETS: Preset[] = [
-  { name: 'Standard', tables: range(2, 12), duration: 60 },
-  { name: 'Junior', tables: range(2, 5), duration: 90 },
-  { name: 'Extended', tables: range(2, 20), duration: 120 },
-  { name: 'Speed Round', tables: range(2, 12), duration: 30 },
+  { name: 'Standard', tables: range(2, 12), duration: 60, feedbackDelay: 600 },
+  { name: 'Junior', tables: range(2, 5), duration: 90, feedbackDelay: 800 },
+  { name: 'Extended', tables: range(2, 20), duration: 120, feedbackDelay: 600 },
+  { name: 'Speed Round', tables: range(2, 12), duration: 30, feedbackDelay: 200 },
 ]
 
 const DURATIONS = [30, 60, 90, 120]
 
-function matchPreset(tables: number[], duration: number): number {
+function matchPreset(tables: number[], duration: number, feedbackDelay: number): number {
   return PRESETS.findIndex(
     p =>
       p.duration === duration &&
+      p.feedbackDelay === feedbackDelay &&
       p.tables.length === tables.length &&
       p.tables.every((t, i) => t === tables[i])
   )
@@ -32,12 +34,14 @@ function matchPreset(tables: number[], duration: number): number {
 export function SetupScreen({ onStart }: { onStart: (config: QuizConfig) => void }) {
   const [tables, setTables] = useState<number[]>(PRESETS[0].tables)
   const [duration, setDuration] = useState(PRESETS[0].duration)
+  const [feedbackDelay, setFeedbackDelay] = useState(PRESETS[0].feedbackDelay)
 
-  const activePreset = matchPreset(tables, duration)
+  const activePreset = matchPreset(tables, duration, feedbackDelay)
 
   function applyPreset(p: Preset) {
     setTables(p.tables)
     setDuration(p.duration)
+    setFeedbackDelay(p.feedbackDelay)
   }
 
   function toggleTable(t: number) {
@@ -119,7 +123,7 @@ export function SetupScreen({ onStart }: { onStart: (config: QuizConfig) => void
         </section>
 
         <button
-          onClick={() => canStart && onStart({ tables, duration })}
+          onClick={() => canStart && onStart({ tables, duration, feedbackDelay })}
           disabled={!canStart}
           className={`w-full py-3 rounded-xl font-bold text-lg transition-colors ${
             canStart
@@ -129,6 +133,20 @@ export function SetupScreen({ onStart }: { onStart: (config: QuizConfig) => void
         >
           Start
         </button>
+
+        <div className="flex items-center gap-3 pt-1">
+          <span className="text-xs text-gray-400 whitespace-nowrap">Transition</span>
+          <input
+            type="range"
+            min={100}
+            max={1000}
+            step={100}
+            value={feedbackDelay}
+            onChange={e => setFeedbackDelay(Number(e.target.value))}
+            className="flex-1 accent-indigo-500 h-1"
+          />
+          <span className="text-xs text-gray-400 w-14 text-right">{feedbackDelay} ms</span>
+        </div>
       </div>
     </div>
   )

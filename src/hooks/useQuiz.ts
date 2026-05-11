@@ -83,9 +83,9 @@ export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => vo
     if (state.phase !== 'feedback') return
     const id = setTimeout(() => {
       dispatch({ type: 'ADVANCE', nextQuestion: generateQuestion(config.tables) })
-    }, 600)
+    }, config.feedbackDelay)
     return () => clearTimeout(id)
-  }, [state.phase, config.tables])
+  }, [state.phase, config.tables, config.feedbackDelay])
 
   // Notify parent when quiz ends
   useEffect(() => {
