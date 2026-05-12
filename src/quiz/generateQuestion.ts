@@ -9,9 +9,9 @@ function shuffle<T>(arr: T[]): T[] {
   return a
 }
 
-export function generateQuestion(tables: number[]): Question {
+export function generateQuestion(tables: number[], maxMultiplier = 12): Question {
   const a = tables[Math.floor(Math.random() * tables.length)]
-  const b = Math.floor(Math.random() * 12) + 1
+  const b = Math.floor(Math.random() * maxMultiplier) + 1
   const answer = a * b
 
   const candidates = new Set<number>()
@@ -19,7 +19,7 @@ export function generateQuestion(tables: number[]): Question {
   // Adjacent multiples of same table
   for (const db of [-2, -1, 1, 2]) {
     const nb = b + db
-    if (nb >= 1 && nb <= 12) candidates.add(a * nb)
+    if (nb >= 1 && nb <= maxMultiplier) candidates.add(a * nb)
   }
 
   // Neighbouring tables ±1

@@ -8,7 +8,7 @@ export function QuizScreen({
   config: QuizConfig
   onEnd: (results: QuizResult[]) => void
 }) {
-  const { question, timeLeft, phase, selectedIndex, correct, answer, total } = useQuiz(config, onEnd)
+  const { question, timeLeft, phase, selectedIndex, correct, answer, total, currentMaxMultiplier, leveledUp } = useQuiz(config, onEnd)
 
   const progress = timeLeft / (config.duration * 10)
 
@@ -17,11 +17,20 @@ export function QuizScreen({
       <div className="w-full max-w-lg space-y-10">
 
         {/* Silent progress bar — no numbers, no colour change */}
-        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-indigo-300 rounded-full"
-            style={{ width: `${progress * 100}%` }}
-          />
+        <div className="space-y-2">
+          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-indigo-300 rounded-full"
+              style={{ width: `${progress * 100}%` }}
+            />
+          </div>
+          {config.mode === 'progressive' && (
+            <div className="flex justify-end">
+              <span className="text-xs text-gray-400 font-medium">
+                ×1–{currentMaxMultiplier}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Question — ? swaps to ✓ or ✗ during feedback */}
@@ -36,6 +45,11 @@ export function QuizScreen({
               <span>?</span>
             )}
           </p>
+          {phase === 'feedback' && leveledUp && (
+            <p className="mt-3 text-2xl font-bold text-green-500">
+              Level up! ×1–{currentMaxMultiplier} unlocked
+            </p>
+          )}
         </div>
 
         {/* 2×2 answer grid */}

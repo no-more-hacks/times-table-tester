@@ -5,6 +5,8 @@ const DEFAULT_CONFIG: QuizConfig = {
   tables: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   duration: 60,
   feedbackDelay: 600,
+  mode: 'multiple-choice',
+  advanceAfter: 0,
 }
 
 function reducer(state: AppState, action: AppAction): AppState {

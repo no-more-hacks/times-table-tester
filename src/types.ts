@@ -4,6 +4,8 @@ export interface QuizConfig {
   tables: number[]
   duration: number // seconds
   feedbackDelay: number // ms before advancing to next question
+  mode: 'multiple-choice' | 'progressive'
+  advanceAfter: number // progressive: correct answers needed to unlock next multiplier
 }
 
 export interface Question {

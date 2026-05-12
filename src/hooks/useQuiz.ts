@@ -13,6 +13,11 @@ interface QuizState {
   score: number
   total: number
   results: QuizResult[]
+  mode: 'multiple-choice' | 'progressive'
+  currentMaxMultiplier: number
+  advanceAfter: number
+  correctSinceAdvance: number
+  leveledUp: boolean
 }
 
 type QuizAction =
@@ -32,6 +37,18 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
     case 'ANSWER': {
       if (state.phase !== 'answering') return state
       const correct = state.question.options[action.index] === state.question.answer
+
+      let { currentMaxMultiplier, correctSinceAdvance } = state
+      let leveledUp = false
+      if (state.mode === 'progressive' && correct) {
+        correctSinceAdvance += 1
+        if (correctSinceAdvance >= state.advanceAfter && currentMaxMultiplier < 12) {
+          currentMaxMultiplier = currentMaxMultiplier + 1
+          correctSinceAdvance = 0
+          leveledUp = true
+        }
+      }
+
       return {
         ...state,
         phase: 'feedback',
@@ -43,6 +60,9 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
           ...state.results,
           { question: state.question, selectedIndex: action.index, correct },
         ],
+        currentMaxMultiplier,
+        correctSinceAdvance,
+        leveledUp,
       }
     }
     case 'ADVANCE':
@@ -58,7 +78,7 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
 
 export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => void) {
   const [state, dispatch] = useReducer(reducer, config, (cfg): QuizState => ({
-    question: generateQuestion(cfg.tables),
+    question: generateQuestion(cfg.tables, cfg.mode === 'progressive' ? 3 : 12),
     timeLeft: cfg.duration * 10,
     phase: 'answering',
     selectedIndex: null,
@@ -66,6 +86,11 @@ export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => vo
     score: 0,
     total: 0,
     results: [],
+    mode: cfg.mode,
+    currentMaxMultiplier: cfg.mode === 'progressive' ? 3 : 12,
+    advanceAfter: cfg.advanceAfter,
+    correctSinceAdvance: 0,
+    leveledUp: false,
   }))
 
   // Keep a stable ref to onEnd so the effect below doesn't need it as a dep
@@ -82,10 +107,13 @@ export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => vo
   useEffect(() => {
     if (state.phase !== 'feedback') return
     const id = setTimeout(() => {
-      dispatch({ type: 'ADVANCE', nextQuestion: generateQuestion(config.tables) })
+      dispatch({
+        type: 'ADVANCE',
+        nextQuestion: generateQuestion(config.tables, state.currentMaxMultiplier),
+      })
     }, config.feedbackDelay)
     return () => clearTimeout(id)
-  }, [state.phase, config.tables, config.feedbackDelay])
+  }, [state.phase, state.currentMaxMultiplier, config.tables, config.feedbackDelay])
 
   // Notify parent when quiz ends
   useEffect(() => {
@@ -111,6 +139,8 @@ export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => vo
     correct: state.correct,
     score: state.score,
     total: state.total,
+    currentMaxMultiplier: state.currentMaxMultiplier,
+    leveledUp: state.leveledUp,
     answer: (index: number) => dispatch({ type: 'ANSWER', index }),
   }
 }
