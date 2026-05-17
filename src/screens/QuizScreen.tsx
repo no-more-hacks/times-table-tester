@@ -1,5 +1,7 @@
 import type { QuizConfig, QuizResult } from '../types'
 import { useQuiz } from '../hooks/useQuiz'
+import { ChoiceInput } from '../inputs/ChoiceInput'
+import { KeypadInput } from '../inputs/KeypadInput'
 
 export function QuizScreen({
   config,
@@ -8,13 +10,24 @@ export function QuizScreen({
   config: QuizConfig
   onEnd: (results: QuizResult[]) => void
 }) {
-  const { question, timeLeft, phase, selectedIndex, correct, answer, total, currentMaxMultiplier, leveledUp } = useQuiz(config, onEnd)
+  const {
+    question,
+    timeLeft,
+    phase,
+    selectedValue,
+    correct,
+    total,
+    currentMaxMultiplier,
+    leveledUp,
+    answer,
+  } = useQuiz(config, onEnd)
 
   const progress = timeLeft / (config.duration * 10)
+  const isKeypad = config.inputMode === 'keypad'
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-lg space-y-10">
+      <div className={`w-full ${isKeypad ? 'max-w-4xl' : 'max-w-lg'} space-y-10`}>
 
         {/* Silent progress bar — no numbers, no colour change */}
         <div className="space-y-2">
@@ -24,7 +37,7 @@ export function QuizScreen({
               style={{ width: `${progress * 100}%` }}
             />
           </div>
-          {config.mode === 'progressive' && (
+          {config.progression === 'progressive' && (
             <div className="flex justify-end">
               <span className="text-xs text-gray-400 font-medium">
                 ×1–{currentMaxMultiplier}
@@ -33,57 +46,34 @@ export function QuizScreen({
           )}
         </div>
 
-        {/* Question — ? swaps to ✓ or ✗ during feedback */}
-        <div className="text-center">
-          <p className="text-6xl font-bold text-gray-900 tracking-tight select-none">
-            {question.a} × {question.b} ={' '}
-            {phase === 'feedback' ? (
-              <span className={correct ? 'text-green-500' : 'text-gray-400'}>
-                {correct ? '✓' : '✗'}
-              </span>
-            ) : (
-              <span>?</span>
+        {/* Level-up banner — reserved slot avoids layout shift */}
+        {config.progression === 'progressive' && (
+          <div className="h-8 flex items-center justify-center -my-2">
+            {phase === 'feedback' && leveledUp && (
+              <p className="text-2xl font-bold text-green-500">
+                Level up! ×1–{currentMaxMultiplier} unlocked
+              </p>
             )}
-          </p>
-          {phase === 'feedback' && leveledUp && (
-            <p className="mt-3 text-2xl font-bold text-green-500">
-              Level up! ×1–{currentMaxMultiplier} unlocked
-            </p>
+          </div>
+        )}
+
+        <div key={total}>
+          {isKeypad ? (
+            <KeypadInput
+              question={question}
+              phase={phase}
+              correct={correct}
+              onAnswer={answer}
+            />
+          ) : (
+            <ChoiceInput
+              question={question}
+              phase={phase}
+              selectedValue={selectedValue}
+              correct={correct}
+              onAnswer={answer}
+            />
           )}
-        </div>
-
-        {/* 2×2 answer grid */}
-        <div key={total} className="grid grid-cols-2 gap-4">
-          {question.options.map((opt, i) => {
-            const isSelected = selectedIndex === i
-            const isAnswer = opt === question.answer
-            const inFeedback = phase === 'feedback'
-
-            let cls =
-              'w-full py-8 rounded-2xl text-3xl font-bold border-2 transition-colors select-none '
-
-            if (inFeedback && isAnswer) {
-              // Always highlight the correct answer green
-              cls += 'bg-green-100 border-green-400 text-green-700'
-            } else if (inFeedback && isSelected && !correct) {
-              // Wrong selection: muted, no red
-              cls += 'bg-gray-100 border-gray-200 text-gray-400'
-            } else {
-              cls +=
-                'bg-white border-gray-200 text-gray-900 hover:border-indigo-300 hover:bg-indigo-50 active:bg-indigo-100'
-            }
-
-            return (
-              <button
-                key={i}
-                onClick={() => answer(i)}
-                disabled={phase !== 'answering'}
-                className={cls}
-              >
-                {opt}
-              </button>
-            )
-          })}
         </div>
 
       </div>

@@ -1,5 +1,5 @@
 import { useReducer, useEffect, useRef } from 'react'
-import type { QuizConfig, Question, QuizResult } from '../types'
+import type { QuizConfig, Question, QuizResult, Progression } from '../types'
 import { generateQuestion } from '../quiz/generateQuestion'
 
 type Phase = 'answering' | 'feedback' | 'ended'
@@ -8,12 +8,12 @@ interface QuizState {
   question: Question
   timeLeft: number // tenths of a second (100ms ticks)
   phase: Phase
-  selectedIndex: number | null
+  selectedValue: number | null
   correct: boolean | null
   score: number
   total: number
   results: QuizResult[]
-  mode: 'multiple-choice' | 'progressive'
+  progression: Progression
   currentMaxMultiplier: number
   advanceAfter: number
   correctSinceAdvance: number
@@ -22,7 +22,7 @@ interface QuizState {
 
 type QuizAction =
   | { type: 'TICK' }
-  | { type: 'ANSWER'; index: number }
+  | { type: 'ANSWER'; value: number }
   | { type: 'ADVANCE'; nextQuestion: Question }
 
 function reducer(state: QuizState, action: QuizAction): QuizState {
@@ -36,11 +36,11 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
     }
     case 'ANSWER': {
       if (state.phase !== 'answering') return state
-      const correct = state.question.options[action.index] === state.question.answer
+      const correct = action.value === state.question.answer
 
       let { currentMaxMultiplier, correctSinceAdvance } = state
       let leveledUp = false
-      if (state.mode === 'progressive' && correct) {
+      if (state.progression === 'progressive' && correct) {
         correctSinceAdvance += 1
         if (correctSinceAdvance >= state.advanceAfter && currentMaxMultiplier < 12) {
           currentMaxMultiplier = currentMaxMultiplier + 1
@@ -52,13 +52,13 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
       return {
         ...state,
         phase: 'feedback',
-        selectedIndex: action.index,
+        selectedValue: action.value,
         correct,
         score: correct ? state.score + 1 : state.score,
         total: state.total + 1,
         results: [
           ...state.results,
-          { question: state.question, selectedIndex: action.index, correct },
+          { question: state.question, selectedValue: action.value, correct },
         ],
         currentMaxMultiplier,
         correctSinceAdvance,
@@ -70,7 +70,7 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
         ...state,
         question: action.nextQuestion,
         phase: 'answering',
-        selectedIndex: null,
+        selectedValue: null,
         correct: null,
       }
   }
@@ -78,16 +78,16 @@ function reducer(state: QuizState, action: QuizAction): QuizState {
 
 export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => void) {
   const [state, dispatch] = useReducer(reducer, config, (cfg): QuizState => ({
-    question: generateQuestion(cfg.tables, cfg.mode === 'progressive' ? 3 : 12),
+    question: generateQuestion(cfg.tables, cfg.progression === 'progressive' ? 3 : 12),
     timeLeft: cfg.duration * 10,
     phase: 'answering',
-    selectedIndex: null,
+    selectedValue: null,
     correct: null,
     score: 0,
     total: 0,
     results: [],
-    mode: cfg.mode,
-    currentMaxMultiplier: cfg.mode === 'progressive' ? 3 : 12,
+    progression: cfg.progression,
+    currentMaxMultiplier: cfg.progression === 'progressive' ? 3 : 12,
     advanceAfter: cfg.advanceAfter,
     correctSinceAdvance: 0,
     leveledUp: false,
@@ -120,27 +120,16 @@ export function useQuiz(config: QuizConfig, onEnd: (results: QuizResult[]) => vo
     if (state.phase === 'ended') onEndRef.current(state.results)
   }, [state.phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keyboard: 1–4 → answer buttons 0–3
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (state.phase !== 'answering') return
-      const i = ['1', '2', '3', '4'].indexOf(e.key)
-      if (i !== -1) dispatch({ type: 'ANSWER', index: i })
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [state.phase])
-
   return {
     question: state.question,
     timeLeft: state.timeLeft,
     phase: state.phase,
-    selectedIndex: state.selectedIndex,
+    selectedValue: state.selectedValue,
     correct: state.correct,
     score: state.score,
     total: state.total,
     currentMaxMultiplier: state.currentMaxMultiplier,
     leveledUp: state.leveledUp,
-    answer: (index: number) => dispatch({ type: 'ANSWER', index }),
+    answer: (value: number) => dispatch({ type: 'ANSWER', value }),
   }
 }
